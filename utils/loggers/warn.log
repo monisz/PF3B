@@ -1,0 +1,2 @@
+{"level":"error","message":"producto con id 20 no encontrado"}
+{"level":"warn","message":"ruta: /api/prod, método: GET no implementada"}

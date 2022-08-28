@@ -1,0 +1,51 @@
+<div class="container p-3 my-4 bg-light">
+  <h2 style="color:blue">Registro de Usuario</h2>
+  <form action="/register" enctype="multipart/form-data" method="POST" id="register" >
+    <div class="mb-3 mt-3">
+      <label for="email" class="form-label">Ingrese su email</label>
+      <input type="email" class="form-control" id="email" placeholder="Ingrese su email" name="username" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="password" class="form-label">Ingrese su contraseña</label>
+      <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" name="password" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="name" class="form-label">Ingrese su nombre y apellido</label>
+      <input type="text" class="form-control" id="name" placeholder="Ingrese su nombre" name="name" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="address" class="form-label">Ingrese su dirección</label>
+      <input type="text" class="form-control" id="address" placeholder="Ingrese su dirección" name="address" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="age" class="form-label">Ingrese su edad</label>
+      <input type="number" class="form-control" id="age" placeholder="Ingrese su edad" name="age" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="phone" class="form-label">Ingrese su número telefónico</label>
+      <input type="tel" class="form-control" id="phone" placeholder="Ingrese su teléfono" name="phone" required/>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="avatar" class="form-label">Ingrese su foto o avatar</label>
+      <input type="file" class="form-control" id="avatar" placeholder="Ingrese su foto o avatar" name="avatar" required/><br/>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+  </form>
+  <h2 style="color:green">{{registerSuccess}}</h2>
+  <br/>
+  <form action="/login" method="GET" id="login" >
+    <button type="submit" class="btn btn-primary">Ir a Login</button>
+  </form>
+</div>
