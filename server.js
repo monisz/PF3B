@@ -15,7 +15,8 @@ const logger = require('./utils/loggers/winston');
 const multer = require('multer');
 
 const apiRoutes = require('./src/routes')
-const tableProducts = require('./src/containers/productContainer_mysql');
+/* const tableProducts = require('./src/containers/productContainer_mysql'); */
+const { Container, colProduct } = require('./src/containers/containerMongoDb');
 const colMessages = require('./src/containers/messagesContainer_firebase');
 
 const app = express();
@@ -91,18 +92,24 @@ app.get('/failregister', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    if (!req.session.username) 
+    if (!req.session.user) 
         res.render('login');
     else {
-        const username = req.session.username;
-        res.render('main-products',  {username});
+        const user = req.session.user;
+        res.render('home',  {user});
     }
 });
 
 app.post('/login', passport.authenticate('login', {failureRedirect: '/faillogin', failureMessage: true}), (req, res) => {
-    const { username, password } = req.body;
-    req.session.username = username;
-    res.render('main-products',  {username});
+    const user = {
+        username: req.user[0].username,
+        name: req.user[0].name,
+        address: req.user[0].address,
+        age: req.user[0].age,
+        phone: req.user[0].phone
+    }
+    req.session.user = user;
+    res.render('home',  {user});
 });
 
 app.get('/faillogin', (req, res) => {
@@ -110,7 +117,7 @@ app.get('/faillogin', (req, res) => {
 });
 
 const isLogin = (req, res, next) => {
-    if (!req.session.username) { 
+    if (!req.session.user) { 
         res.render('login');
     } else next();
 };
@@ -118,7 +125,7 @@ const isLogin = (req, res, next) => {
 app.use('/', isLogin, apiRoutes);
 
 app.post('/logout', isLogin, async (req, res) => {
-    const username = req.session.username;
+    const username = req.session.user.username;
     req.session.destroy((err) => {
         console.log(err);
         res.render('logout', {username})
@@ -196,7 +203,8 @@ ioServer.on('connection', (socket) => {
     console.log('Nuevo cliente conectado');
     const getTables = (async () => {
         socket.emit('messages', await colMessages.getAll());  
-        socket.emit('products', await tableProducts.getAll());
+        /* socket.emit('products', await tableProducts.getAll()); */
+        socket.emit('products', await colProduct.getAll());
     }) ();
 
     socket.on("newMessage", (message) => {

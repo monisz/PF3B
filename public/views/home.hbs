@@ -1,0 +1,89 @@
+<div class="container p-3 my-4" style="background-color:rgb(165, 217, 250)">
+  <form class="row g-3" action="/logout" method="POST">  
+    <div class="col-sm-4">
+      <h3 style="color:green">Bienvenido <img src="../avatars/{{user.username}}.jpeg" alt="avatar"></h3>
+    </div>
+    <div class="container p-3 my-4 col-sm-4">
+      <h4 style="color:blue">Datos del usuario</h4>
+      <p><b>email: </b>{{user.username}}</p>
+      <p><b>Nombre: </b>{{user.name}}</p>
+      <p><b>Dirección: </b>{{user.address}}</p>
+      <p><b>Edad: </b>{{user.age}}</p>
+      <p><b>Teléfono: </b>{{user.phone}}</p>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-warning" id="logout">Desloguear</button>
+    </div>
+  </form>
+</div>
+
+
+
+<div class="container p-3 my-4 bg-light" style="display:flex; justify-content:space-around">
+    <form action="/api/productos" method="GET" id="products" >
+        <button type="submit" class="btn btn-primary">Productos</button>
+    </form>
+    <form action="/api/carrito" method="GET" id="cart" >
+        <button type="submit" class="btn btn-primary">Carrito</button>
+    </form>
+</div>
+
+<div class="container p-5 my-5 bg-light">
+  <h1 style="color:blue">Ingrese Producto</h1>
+  <form action="/api/productos" method="POST" id="form">
+    <div class="mb-3 mt-3">
+      <label for="title" class="form-label">Nombre</label>
+      <input type="text" class="form-control" id="name" placeholder="Ingrese el nombre del producto" name="title" required>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="description" class="form-label">Descripción</label>
+      <input type="text" class="form-control" id="description" placeholder="Ingrese la descripción del producto" name="description" required>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="code" class="form-label">Código</label>
+      <input type="text" class="form-control" id="code" placeholder="Ingrese el código del producto" name="code" required>
+    </div>
+    <div class="mb-3">
+      <label for="photo" class="form-label">Foto URL</label>
+      <input type="url" class="form-control" id="image" placeholder="Ingrese imagen" name="thumbnail" required>
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Precio</label>
+      <input type="number" class="form-control" id="price" placeholder="Ingrese precio" name="price" required>
+    </div>
+    <div class="mb-3">
+      <label for="stock" class="form-label">Stock</label>
+      <input type="number" class="form-control" id="stock" placeholder="Ingrese el stock del producto" name="stock" required>
+    </div>
+    <button type="submit" class="btn btn-success" id="send">Cargar producto</button>
+    <div id="listaProductos"></div>
+  </form>
+</div>
+
+{{#if products}}
+  <div class="container p-4 my-5 bg-light" id="listaProductos">
+    {{#if products}}
+    <h1 style="color:blue">Vista de Productos</h1><br>
+    <table class="table table-dark">
+      <thead>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Foto</th>
+      </thead>
+      <tbody>
+        {{#each products}}
+          <tr>
+            <td>{{code}}</td>
+            <td>{{title}}</td>
+            <td>{{price}}</td>
+            <td><img src="{{thumbnail}}" height="50rem"></td>
+          </tr>
+        {{/each}}    
+      </tbody>
+    </table>
+    {{else}}
+      <h3 style="background-color:aquamarine">No se encontraron productos</h3><br>
+    {{/if}}
+  </div>
+{{/if}}

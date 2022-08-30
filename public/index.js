@@ -82,9 +82,10 @@ const sendProduct = () => {
 };
 
 const showProduct = (product) => {
-    const { title, price, thumbnail } = product;
+    const { code, title, price, thumbnail } = product;
     return `
         <tr>
+            <td>${code}</td>
             <td>${title}</td>
             <td>${price}</td>
             <td><img src="${thumbnail}" height="50rem"></td>
@@ -100,11 +101,13 @@ const addProduct = (products) => {
     else {
         document.getElementById("titles").innerHTML = `
             <th>Nombre</th>
+            <th>Nombre</th>
             <th>Precio</th>
             <th>Foto</th>
         `;
         const allProducts = products.map(product => showProduct(product)).join(" ");
         document.getElementById("listProducts").innerHTML = allProducts;
+        document.getElementById("code").value = '';
         document.getElementById("title").value = '';
         document.getElementById("price").value = '';
         document.getElementById("thumbnail").value = '';

@@ -25,7 +25,6 @@ const firebaseConfig = require('./firebaseConfig');
 /*     }) */
 /* }); */
 
-console.log("dev", firebaseConfig.dev)
 admin.initializeApp({
     credential: admin.credential.cert(firebaseConfig.dev)
 });
