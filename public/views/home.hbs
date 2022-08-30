@@ -28,6 +28,7 @@
     </form>
 </div>
 
+{{#if admin }}
 <div class="container p-5 my-5 bg-light">
   <h1 style="color:blue">Ingrese Producto</h1>
   <form action="/api/productos" method="POST" id="form">
@@ -59,6 +60,7 @@
     <div id="listaProductos"></div>
   </form>
 </div>
+{{/if}}
 
 {{#if products}}
   <div class="container p-4 my-5 bg-light" id="listaProductos">

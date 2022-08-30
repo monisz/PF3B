@@ -13,6 +13,7 @@ const cluster = require('cluster');
 const compression = require('compression');
 const logger = require('./utils/loggers/winston');
 const multer = require('multer');
+const sendMail = require('./utils/mailer');
 
 const apiRoutes = require('./src/routes')
 /* const tableProducts = require('./src/containers/productContainer_mysql'); */
@@ -84,6 +85,7 @@ app.get('/register', (req, res) => {
 
 app.post('/register', uploader.single('avatar'), passport.authenticate('register', {failureRedirect: '/failregister', failureMessage: true}), (req, res) => {
     const registerSuccess = 'Registrado exitosamente. Ir a Login para ingresar';
+    sendMail(req.body);
     res.render('register', {registerSuccess});
 });
 
@@ -109,7 +111,11 @@ app.post('/login', passport.authenticate('login', {failureRedirect: '/faillogin'
         phone: req.user[0].phone
     }
     req.session.user = user;
-    res.render('home',  {user});
+    const admin = process.env.ADMIN
+    console.log("admin en post login", admin)
+    if (admin) console.log("admin en if", admin)
+    else console.log("else de admin", admin)
+    res.render('home',  {user, admin});
 });
 
 app.get('/faillogin', (req, res) => {
@@ -136,15 +142,22 @@ const args = process.argv.slice(2);
 const argsparse = minimist(args, {
     default: {
         port: 8080,
-        mode: 'fork'
+        mode: 'fork',
+        /* admin: false */
     },
     alias: {
         p: 'port',
-        m: 'mode'
+        m: 'mode',
+        /* a: 'admin' */
     }
 });
 
-const port = process.env.PORT || argsparse.port
+const port = process.env.PORT || argsparse.port;
+/* const admnin = argsparse.admin; */
+/* console.log("admin en server", admin) */
+/* if (admin === true) { const isAdmin = true } */
+console.log("admin en server", process.env.ADMIN)
+
 
 //Ruta info
 app.get('/info', (req, res) => {

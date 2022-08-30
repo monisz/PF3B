@@ -6,20 +6,21 @@ const { Container, colProduct } = require('../../src/containers/containerMongoDb
 
 //Variable para manejo de autorización (configurar en true para administrador
 // o false para usuario)
-const admin = true;
+const admin = process.env.ADMIN;
 
 const isAdmin = (req, res, next) => {
     if (admin === true ) next();
     else res.status(403).send("método no autorizado");
 };
 
+console.log("admin en productdato", admin)
 //Vista de todos los productos
 router.get('/', (req, res) => {
     const entry = JSON.stringify(req.params);
     const getProducts = (async () => {
         const products = await colProduct.getAll();
         const user = req.session.user;
-        res.render('home', {products, user});
+        res.render('home', {products, user, admin});
     }) ();
 });
 
@@ -37,7 +38,6 @@ router.get('/:id', (req, res) => {
         else {
             const products = productFinded;
             const user = req.session.user;
-            console.log("en getbyid user.username", user.username)
             res.render('home', {products, user});
         }
     }) ();
