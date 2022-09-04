@@ -17,13 +17,11 @@
   </form>
 </div>
 
-
-
 <div class="container p-3 my-4 bg-light" style="display:flex; justify-content:space-around">
-    <form action="/api/productos" method="GET" id="products" >
+    <form action="/api/productos" method="GET" id="" >
         <button type="submit" class="btn btn-primary">Productos</button>
     </form>
-    <form action="/api/carrito" method="GET" id="cart" >
+    <form action="/api/carrito/{{idCart}}/productos" method="GET" id="" >
         <button type="submit" class="btn btn-primary">Carrito</button>
     </form>
 </div>
@@ -72,6 +70,7 @@
         <th>Nombre</th>
         <th>Precio</th>
         <th>Foto</th>
+        <th></th>
       </thead>
       <tbody>
         {{#each products}}
@@ -80,12 +79,56 @@
             <td>{{title}}</td>
             <td>{{price}}</td>
             <td><img src="{{thumbnail}}" height="50rem"></td>
+            <td>
+              <form action="/api/carrito/{{id}}/productos" method="POST" id="" >
+                <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+              </form>
+            </td>
           </tr>
         {{/each}}    
       </tbody>
     </table>
     {{else}}
       <h3 style="background-color:aquamarine">No se encontraron productos</h3><br>
+    {{/if}}
+  </div>
+{{/if}}
+
+
+{{#if cart}}
+  <div class="container p-4 my-5 bg-light" id="">
+    {{#if productsInCart}}
+      <h1 style="color:blue">Mi carrito</h1><br>
+      {{#if cartModified}}
+        <h3 style="background-color:aquamarine">El producto elegido se agregó al carrito</h3><br>
+      {{/if}}  
+      <table class="table table-dark">
+        <thead>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Foto</th>
+        </thead>
+        <tbody>
+          {{#each productsInCart}}
+            <tr>
+              <td>{{code}}</td>
+              <td>{{title}}</td>
+              <td>{{price}}</td>
+              <td><img src="{{thumbnail}}" height="50rem"></td>
+            </tr>
+          {{/each}}    
+        </tbody>
+      </table>
+      {{#if dataToSend}}
+        <h3 style="background-color:aquamarine">Gracias por su compra</h3><br>
+      {{else}}
+        <form action="/api/carrito/compra" method="POST" id="" >
+          <button type="submit" class="btn btn-primary">Finalizar compra</button>
+        </form>
+      {{/if}} 
+    {{else}}
+      <h3 style="background-color:aquamarine">El carrito está vacío</h3><br>
     {{/if}}
   </div>
 {{/if}}

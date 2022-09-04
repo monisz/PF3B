@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const normalize = require('normalizr');
+const logger = require('../../utils/loggers/winston');
 const print = require('../../utils/print');
 const firebaseConfig = require('./firebaseConfig');
 
@@ -30,7 +31,7 @@ admin.initializeApp({
 });
 
 
-console.log("conectados a firebase");
+logger.info("conectados a firebase");
 
 const db = admin.firestore();
 

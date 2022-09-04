@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const logger = require('../../utils/loggers/winston');
 /* const { mongoDb } = require('../../config'); */
 
 mongoose.connect(process.env.MONGO_DB);
-console.log("conectados a mongo");
+logger.info("conectados a mongo");
 
 class Container {
     constructor (collection) {
@@ -17,15 +18,15 @@ class Container {
             try {
                 const elementToSave = new this.collection(element)
                 await elementToSave.save();
-                console.log("agregado exitoso", element.id);
+                logger.info(`agregado exitoso ${element.id}`);
             }
             catch (error) {
-                console.log("el error al guardar fue: ", error);
+                logger.error(`el error al guardar fue: ${error}`);
             }
             return element.id;
         }
         catch (error) {
-            console.log("error en Save): ", error);
+            logger.error(`error en Save ${error}`);
         }
     }
     
@@ -33,11 +34,13 @@ class Container {
     //Agregué este método para complementar el put por id
     async replaceById(idSearch, data) {
         try {
-            await this.collection.findOneAndUpdate({id: idSearch}, {$set: data})
-            return result = await this.collection.find({id: idSearch})
+            await this.collection.findOneAndUpdate({id: idSearch}, {$set: data});
+            const result = await this.collection.find({id: idSearch});
+            logger.info(`result en replace ${result}`);
+            return result
         }
         catch (error) {
-            console.log("error al reemplazar datos: ", error);
+            logger.error(`error al reemplazar datos ${error}`);
         }
     }
 
@@ -45,24 +48,23 @@ class Container {
         try {
             const objectFinded = await this.collection.find({id: idSearch});
             if (objectFinded.length > 0) {
-                const product = productsToShow(objectFinded);
-                return product;
+                logger.info(`objeto encontrado en getById ${objectFinded}`);
+                return objectFinded;
             }
             else return null;
         }
         catch (error) {
-            console.log("error al buscar por id: ", error);
+            logger.error(`error al buscar por id ${error}`);
         }
     }
 
     async getAll() {
         try {
             const allItems = await this.collection.find();
-            const products = productsToShow(allItems);
-            return products;
+            return allItems;
         }
         catch (error) {
-            console.log("error en getAll): ", error)
+            logger.error(`error en getAll ${error}`);
             return [];
         }
     }
@@ -72,7 +74,7 @@ class Container {
             return result = await this.collection.deleteOne({id: idSearch});
         }
         catch (error) {
-            console.log("error en deleteById): ", error);
+            logger.error(`error en deleteById ${error}`);
         }
     }
 }
@@ -88,20 +90,6 @@ const productsSchema = new mongoose.Schema({
     id: {type: Number, require: true}
 });
 
-const productsToShow = (items) => {
-    let products = [];
-    items.forEach(element => {
-        products.push(
-            {
-                code: element.code,
-                title: element.title,
-                price: element.price,
-                thumbnail: element.thumbnail
-        })
-    });
-        return products;
-}
-
 const Product = mongoose.model("product", productsSchema);
 class Products extends Container {
     constructor() {
@@ -110,5 +98,20 @@ class Products extends Container {
 };
 const colProduct = new Products();
 
-module.exports = { Container, colProduct };
+const cartsSchema = new mongoose.Schema({
+    timestamp: {type: Date, require: true},
+    id: {type: Number, require: true},
+    /* username: {type: String, require: true}, */
+    products : []
+});
+const Cart = mongoose.model("cart", cartsSchema);
+
+class Carts extends Container {
+    constructor(){
+        super(Cart);
+    }
+};
+const colCart = new Carts();
+
+module.exports = { Container, colProduct, colCart };
 

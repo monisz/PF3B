@@ -2,6 +2,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const { MongoClient } = require('mongodb');
+const logger = require('./utils/loggers/winston');
 const { MONGO_ATLAS_CONNECTION } = process.env;
 
 const connectMongo = ( async () => {
@@ -10,7 +11,7 @@ const connectMongo = ( async () => {
         if (err) throw new Error('Error al conectar a Mongo Atlas');
     }
     await mongo.connect();
-    console.log("conectado a Mongo Atlas");
+    logger.info("conectado a Mongo Atlas");
 
 
     const findUser = async (username) => {

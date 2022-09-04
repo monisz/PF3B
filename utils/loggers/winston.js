@@ -16,6 +16,6 @@ const loggerProduction = winston.createLogger({
 });
 
 const logger = process.env.NODE_ENV === 'PROD' ? loggerProduction : loggerDeveloping;
-console.log(process.env.NODE_ENV);
+logger.info(`process.env.NODE_ENV ${process.env.NODE_ENV}`);
 
 module.exports = logger;

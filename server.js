@@ -4,7 +4,6 @@ const { engine } = require('express-handlebars');
 const { Server: HttpServer } = require('http');
 const { Server: SocketServer } = require('socket.io');
 const session = require('express-session');
-/* const cookieParser = require('cookie-parser'); */
 const MongoStore = require('connect-mongo');
 const passport = require('./passport');
 const minimist = require('minimist');
@@ -15,16 +14,14 @@ const logger = require('./utils/loggers/winston');
 const multer = require('multer');
 const sendMail = require('./utils/mailer');
 
-const apiRoutes = require('./src/routes')
-/* const tableProducts = require('./src/containers/productContainer_mysql'); */
-const { Container, colProduct } = require('./src/containers/containerMongoDb');
+const apiRoutes = require('./src/routes');
+const { Container, colProduct, colCart } = require('./src/containers/containerMongoDb');
 const colMessages = require('./src/containers/messagesContainer_firebase');
 
 const app = express();
 const httpServer = new HttpServer(app);
 const ioServer = new SocketServer(httpServer);
 
-/* app.use(cookieParser()); */
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,7 +30,6 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_ATLAS_CONNECTION,
         dbName: 'ecommerce',
-        //Según la docu, si la cookie tiene seteado el tiempo, usa ese
         ttl: 10 * 60,
         mongoOptions: {
             useNewUrlParser: true,
@@ -43,9 +39,6 @@ app.use(session({
     secret: 'desafio26',
     resave: true,
     rolling: true,
-    /* cookie: { */
-    /*     maxAge: 60000 */
-    /* }, */
     saveUninitialized: false
 }));
 
@@ -90,7 +83,7 @@ app.post('/register', uploader.single('avatar'), passport.authenticate('register
 });
 
 app.get('/failregister', (req, res) => {
-    res.render('failregister')
+    res.render('failregister');
 });
 
 app.get('/login', (req, res) => {
@@ -111,11 +104,17 @@ app.post('/login', passport.authenticate('login', {failureRedirect: '/faillogin'
         phone: req.user[0].phone
     }
     req.session.user = user;
-    const admin = process.env.ADMIN
-    console.log("admin en post login", admin)
-    if (admin) console.log("admin en if", admin)
-    else console.log("else de admin", admin)
-    res.render('home',  {user, admin});
+    const admin = process.env.ADMIN;
+    const createCart = (async () => {
+        const newCart = {
+            timestamp : Date.now(),
+            products: []
+        };
+        const idCart = await colCart.save(newCart);
+        logger.info(`carrito agregado id: ${idCart}`);
+        req.session.cart = idCart;
+        res.render('home',  {user, admin, idCart});
+    }) ();
 });
 
 app.get('/faillogin', (req, res) => {
@@ -133,7 +132,7 @@ app.use('/', isLogin, apiRoutes);
 app.post('/logout', isLogin, async (req, res) => {
     const username = req.session.user.username;
     req.session.destroy((err) => {
-        console.log(err);
+        logger.error(err);
         res.render('logout', {username})
     });
 });
@@ -143,20 +142,15 @@ const argsparse = minimist(args, {
     default: {
         port: 8080,
         mode: 'fork',
-        /* admin: false */
     },
     alias: {
         p: 'port',
         m: 'mode',
-        /* a: 'admin' */
     }
 });
 
 const port = process.env.PORT || argsparse.port;
-/* const admnin = argsparse.admin; */
-/* console.log("admin en server", admin) */
-/* if (admin === true) { const isAdmin = true } */
-console.log("admin en server", process.env.ADMIN)
+logger.info(`admin en server ${process.env.ADMIN}`)
 
 
 //Ruta info
@@ -176,7 +170,7 @@ app.get('/info', (req, res) => {
         folder: process.cwd(),
         numCPUs: numCPUs
     };
-    console.log("info", info);
+    logger.info(`info en /info ${info}`);
     res.render('info', {info});
 });
 
@@ -184,7 +178,7 @@ app.get('/info', (req, res) => {
 //Ruta para test con Faker
 app.get('/api/productos-test', isLogin, async (req, res) => {
     const mocks = await tableProducts.generateMock();
-    console.log(mocks)
+    logger.info(`mocks ${mocks}`);
     res.render('main-faker', {mocks})
 });
 
@@ -194,26 +188,28 @@ app.use((req, res) => {
     res.status(404).send("ruta no implementada");
 });
 
-console.log(argsparse.mode)
-if (argsparse.mode === "cluster") {
+logger.info(`argsparse.mode ${argsparse.mode}`)
+logger.info(`process.env.MODE ${process.env.MODE}`)
+
+if (argsparse.mode === "cluster" || process.env.MODE === "cluster") {
     if (cluster.isMaster) {
         for (let i = 0; i < numCPUs; i++) {
             cluster.fork();
         }    
     } else {
         httpServer.listen(port, () => {
-            console.log(`escuchando desafio 32 en puerto ${port}, pid: ${process.pid}`);
+            logger.info(`escuchando desafio 32 en puerto ${port}, pid: ${process.pid}`);
         });
     }
 } else {
     httpServer.listen(port, () => {
-        console.log(`escuchando desafio 32 en puerto ${port}, pid: ${process.pid}`);
+        logger.info(`escuchando desafio 32 en puerto ${port}, pid: ${process.pid}`);
     });
 } 
 
 
 ioServer.on('connection', (socket) => {
-    console.log('Nuevo cliente conectado');
+    logger.info('Nuevo cliente conectado');
     const getTables = (async () => {
         socket.emit('messages', await colMessages.getAll());  
         /* socket.emit('products', await tableProducts.getAll()); */

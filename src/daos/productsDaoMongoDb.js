@@ -2,10 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const { Container, colProduct } = require('../../src/containers/containerMongoDb');
+const logger = require('../../utils/loggers/winston');
 
-
-//Variable para manejo de autorización (configurar en true para administrador
-// o false para usuario)
+//Variable para manejo de autorización
 const admin = process.env.ADMIN;
 
 const isAdmin = (req, res, next) => {
@@ -13,31 +12,35 @@ const isAdmin = (req, res, next) => {
     else res.status(403).send("método no autorizado");
 };
 
-console.log("admin en productdato", admin)
+logger.info(`admin en productdato ${admin}`);
+
 //Vista de todos los productos
 router.get('/', (req, res) => {
-    const entry = JSON.stringify(req.params);
     const getProducts = (async () => {
-        const products = await colProduct.getAll();
+        const allProducts = await colProduct.getAll();
+        const products = productsToShow(allProducts)
         const user = req.session.user;
-        res.render('home', {products, user, admin});
+        const idCart = req.session.cart;
+        res.render('home', {products, user, admin, idCart});
     }) ();
 });
 
 
 //Para obtener un producto según su id
 router.get('/:id', (req, res) => {
+    const user = req.session.user;
     const getProduct = (async () => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return res.status(400).send({error: "el parámetro no es un número"});
         const productFinded = await colProduct.getById(id);
         if (!productFinded) {
-            res.status(404).send({error: "producto no encontrado"});
-            console.log("prod no encontrado")
+            res.status(404);
+            logger.info("prod no encontrado");
+            const products = {};
+            res.render('home', {products, user});
         }
         else {
-            const products = productFinded;
-            const user = req.session.user;
+            const products = productsToShow(productFinded);
             res.render('home', {products, user});
         }
     }) ();
@@ -72,5 +75,20 @@ router.delete('/:id', isAdmin, (req, res) => {
         else res.send("producto eliminado");
     }) ();
 });
+
+const productsToShow = (items) => {
+    let products = [];
+    items.forEach(element => {
+        products.push(
+            {
+                id: element.id,
+                code: element.code,
+                title: element.title,
+                price: element.price,
+                thumbnail: element.thumbnail
+        })
+    });
+        return products;
+}
 
 module.exports = router;
