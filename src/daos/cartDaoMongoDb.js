@@ -36,6 +36,7 @@ router.get('/:id/productos', (req, res) => {
     }) ();
 });
 
+
 //Para agregar un producto al carrito por id del producto
 //el id del carrito es el de la session
 router.post('/:id/productos', (req, res) => {
@@ -43,7 +44,7 @@ router.post('/:id/productos', (req, res) => {
     const user = req.session.user;
     const addProductToCart = (async () => {
         const idCart = req.session.cart;
-        logger.info(`idCart en post ${idCart} y idProduct ${idProduct}`);
+        logger.info(`en post idCart ${idCart} y idProduct ${idProduct}`);
         const getProduct = (async () => {
             if (isNaN(idProduct)) return res.status(400).send({error: "el parámetro no es un número"});
             const productToAdd = await colProduct.getById(idProduct);
@@ -56,7 +57,6 @@ router.post('/:id/productos', (req, res) => {
                         cart[0].products.push(productToAdd[0]);
                         const updateCart = (async () => {
                             const cartModified = await colCart.replaceById(idCart, cart[0]);
-                            logger.info(`carritoModificado ${cartModified}`);
                             const productsInCart = cartModified[0].products;
                             logger.info(`producto id: ${idProduct} agregado en carrito id: ${idCart}`);
                             res.render('home', {user, admin, cartModified, cart, productsInCart, idCart});

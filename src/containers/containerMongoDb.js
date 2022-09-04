@@ -36,7 +36,7 @@ class Container {
         try {
             await this.collection.findOneAndUpdate({id: idSearch}, {$set: data});
             const result = await this.collection.find({id: idSearch});
-            logger.info(`result en replace ${result}`);
+            logger.info(`replace id: ${result[0].id}`);
             return result
         }
         catch (error) {
@@ -48,7 +48,7 @@ class Container {
         try {
             const objectFinded = await this.collection.find({id: idSearch});
             if (objectFinded.length > 0) {
-                logger.info(`objeto encontrado en getById ${objectFinded}`);
+                logger.info(`objeto encontrado en getById, id: ${objectFinded[0].id}`);
                 return objectFinded;
             }
             else return null;

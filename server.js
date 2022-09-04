@@ -212,7 +212,6 @@ ioServer.on('connection', (socket) => {
     logger.info('Nuevo cliente conectado');
     const getTables = (async () => {
         socket.emit('messages', await colMessages.getAll());  
-        /* socket.emit('products', await tableProducts.getAll()); */
         socket.emit('products', await colProduct.getAll());
     }) ();
 

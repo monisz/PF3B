@@ -8,7 +8,7 @@ const logger = require('../../utils/loggers/winston');
 const admin = process.env.ADMIN;
 
 const isAdmin = (req, res, next) => {
-    if (admin === true ) next();
+    if (admin === "true") next();
     else res.status(403).send("método no autorizado");
 };
 
